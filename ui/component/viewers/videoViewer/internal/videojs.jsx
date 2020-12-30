@@ -317,7 +317,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         'https://cdn.lbryplayer.xyz/api/v4/streams/free/Body-Language---Georgia’s-Secretary-of-State-Brad-Raffensperger/c6a7c147c47c93cc3f5925da85d4a1e9acedd95b/b98440'
       ).then(response => {
         console.log('response', response);
-        debugger;
+
         if (response.redirected && response.url && response.url.endsWith('m3u8')) {
           videoJsOptions.sources[0].type = 'application/x-mpegURL';
         }
