@@ -145,7 +145,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     ...VIDEO_JS_OPTIONS,
     sources: [
       {
-        src: source,
+        handleManifestRedirects: true,
+        src:
+          'https://cdn.lbryplayer.xyz/api/v4/streams/free/Body-Language---Georgia’s-Secretary-of-State-Brad-Raffensperger/c6a7c147c47c93cc3f5925da85d4a1e9acedd95b/b98440',
         type: sourceType,
       },
     ],
@@ -311,27 +313,37 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       containerRef.current.appendChild(wrapper);
 
-      player = videojs(el, videoJsOptions, () => {
-        if (player) {
-          player.one('play', onInitialPlay);
-          player.on('volumechange', onVolumeChange);
-          player.on('error', onError);
-          player.on('ended', onEnded);
-          LbryVolumeBarClass.replaceExisting(player);
-          player.mobileUi(); // Inits mobile version. No-op if Desktop.
-
-          onPlayerReady(player);
+      fetch(
+        'https://cdn.lbryplayer.xyz/api/v4/streams/free/Body-Language---Georgia’s-Secretary-of-State-Brad-Raffensperger/c6a7c147c47c93cc3f5925da85d4a1e9acedd95b/b98440'
+      ).then(response => {
+        console.log('response', response);
+        debugger;
+        if (response.redirected && response.url && response.url.endsWith('m3u8')) {
+          videoJsOptions.sources[0].type = 'application/x-mpegURL';
         }
+
+        player = videojs(el, videoJsOptions, () => {
+          if (player) {
+            player.one('play', onInitialPlay);
+            player.on('volumechange', onVolumeChange);
+            player.on('error', onError);
+            player.on('ended', onEnded);
+            LbryVolumeBarClass.replaceExisting(player);
+            player.mobileUi(); // Inits mobile version. No-op if Desktop.
+
+            onPlayerReady(player);
+          }
+        });
+
+        window.player = player;
+
+        // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
+        // summary: on firefox the focus would stick to the fullscreen button which caused buggy behavior with spacebar
+        // $FlowFixMe
+        player.on('fullscreenchange', () => document.activeElement && document.activeElement.blur());
+
+        window.addEventListener('keydown', handleKeyDown);
       });
-
-      window.player = player;
-
-      // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
-      // summary: on firefox the focus would stick to the fullscreen button which caused buggy behavior with spacebar
-      // $FlowFixMe
-      player.on('fullscreenchange', () => document.activeElement && document.activeElement.blur());
-
-      window.addEventListener('keydown', handleKeyDown);
 
       return () => {
         window.removeEventListener('keydown', handleKeyDown);
