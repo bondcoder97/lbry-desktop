@@ -146,8 +146,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     sources: [
       {
         handleManifestRedirects: true,
-        src:
-          'https://cdn.lbryplayer.xyz/api/v4/streams/free/Body-Language---Georgia’s-Secretary-of-State-Brad-Raffensperger/c6a7c147c47c93cc3f5925da85d4a1e9acedd95b/b98440',
+        src: source,
         type: sourceType,
       },
     ],
@@ -313,9 +312,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       containerRef.current.appendChild(wrapper);
 
-      fetch(
-        'https://cdn.lbryplayer.xyz/api/v4/streams/free/Body-Language---Georgia’s-Secretary-of-State-Brad-Raffensperger/c6a7c147c47c93cc3f5925da85d4a1e9acedd95b/b98440'
-      ).then(response => {
+      fetch(source.replace('v3', 'v4')).then(response => {
         console.log('response', response);
 
         if (response.redirected && response.url && response.url.endsWith('m3u8')) {
